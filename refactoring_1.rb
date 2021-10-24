@@ -35,6 +35,12 @@ class Rental
       result += (rental.days_rented - 3) * 1.5 if rental.days_rented > 3
     end
   end
+
+  def frequent_renter_points
+    # 新作の場合、2日間レンタルで2ポイント（ボーナス点）
+    # それ以外（通常）は1ポイント
+    element.movie.price_code == Movie::NEW_RELEASE && element.days_rented > 1 ? 2 : 1
+  end
 end
 
 def Customer
@@ -51,26 +57,27 @@ def Customer
 
   # 状態とは??
   def statement
-    total_amount = 0
-    frequent_renter_points = 0
-    result = "Rental Record for #{@name}\n"
+    result = "Rental Record for #{@name}\n" # 出力する文字列
 
     @rentals.each do |element|
-      this_amount = element.charge
-
-      # レンタルポイントを加算
-      frequent_renter_points += 1
-      # 新作の場合、2日間レンタルでボーナス点をレンタルポイントに加算
-      frequent_renter_points += 1 if element.movie.price_code == Movie::NEW_RELEASE && element.days_rented > 1
-
       # このレンタルの料金を表示
-      result += "\t" + element.movie.title + "\t" + this_amount.to_s + "\n"
-      total_amount += this_amount
+      result += "\t" + element.movie.title + "\t" + element.charge.to_s + "\n"
     end
 
     # フッター行を追加
-    result += "Amount owed is #{total_amount}\n" # 合計金額
-    result += "You earned #{frequent_renter_points} frequent renter points" # 加算されたレンタルポイント
+    result += "Amount owed is #{total_charge}\n" # 合計金額
+    result += "You earned #{total_frequent_renter_points} frequent renter points" # 加算されたレンタルポイント
     result
+  end
+
+  private
+
+  # レンタル料金合計
+  def total_charge
+    @rentals.inject(0) { |sum, rental| sum += rental.charge }
+  end
+
+  def total_frequent_renter_points
+    @rentals.inject(0) { |sum, rental| sum += rental.frequent_renter_points }
   end
 end
