@@ -10,6 +10,29 @@ class Movie
     @title = title # 映画のタイトル
     @price_code = price_code # 映画の料金コード
   end
+
+  # 料金
+  def charge(days_rented)
+    result = 0
+
+    case price_code
+    when REGULAR
+      result += 2
+      result += (days_rented - 2) * 1.5 if days_rented > 2
+    when NEW_RELEASE
+      result += days_rented * 3
+    when CHILDRENS
+      result += 1.5
+      result += (days_rented - 3) * 1.5 if days_rented > 3
+    end
+    result
+  end
+
+  def frequent_renter_points(days_rented)
+    # 新作の場合、2日間レンタルで2ポイント（ボーナス点）
+    # それ以外（通常）は1ポイント
+    price_code == NEW_RELEASE && days_rented > 1 ? 2 : 1
+  end
 end
 
 class Rental
@@ -20,26 +43,13 @@ class Rental
     @days_rented = days_rented # 貸出日数
   end
 
-  # 料金
+  # Rentalが持つデータ(days_rented)を渡して、Movieに委譲する
   def charge
-    result = 0
-
-    case rental.movie.price_code
-    when Movie::REGULAR
-      result += 2
-      result += (rental.days_rented - 2) * 1.5 if rental.days_rented > 2
-    when Movie::NEW_RELEASE
-      result += rental.days_rented * 3
-    when Movie::CHILDRENS
-      result += 1.5
-      result += (rental.days_rented - 3) * 1.5 if rental.days_rented > 3
-    end
+    movie.charge(days_rented)
   end
 
   def frequent_renter_points
-    # 新作の場合、2日間レンタルで2ポイント（ボーナス点）
-    # それ以外（通常）は1ポイント
-    element.movie.price_code == Movie::NEW_RELEASE && element.days_rented > 1 ? 2 : 1
+    movie.frequent_renter_points(days_rented)
   end
 end
 
