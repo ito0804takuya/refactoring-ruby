@@ -545,3 +545,125 @@ recorder.play_for(CommandCenter.new)
 #   attr_with_default emails: "[]",
 #                     employee_number: "EmployNumberGenerator.next"
 # end
+
+# # -------------------------------------------------
+# # -------------------------------------------------
+# 以下は、自作コード
+# # -------------------------------------------------
+# # -------------------------------------------------
+
+def sample_method
+  puts "sample_method"
+  # その他諸々の処理...
+end
+
+# # -------------------------------------------------
+
+def sample_method
+  print_sample_method
+end
+
+def print_sample_method
+  puts "sample_method"
+  # その他諸々の処理...
+end
+
+# # -------------------------------------------------
+# # -------------------------------------------------
+
+def sample_method
+  local_variable = 0
+  puts "instance_variable: #{@instance_variable}"
+  puts "local_variable: #{local_variable}"
+  # その他諸々の処理で、local_variableは使われる...
+end
+
+# # -------------------------------------------------
+
+def sample_method
+  local_variable = 0
+  print_sample_method(local_variable)
+  # その他諸々の処理で、local_variableは使われる...
+end
+
+# ローカル変数は別メソッド間でアクセスできないため、引数で渡す必要がある。
+def print_sample_method(local_variable)
+  puts "instance_variable: #{@instance_variable}"
+  puts "local_variable: #{local_variable}"
+end
+
+# # -------------------------------------------------
+# # -------------------------------------------------
+
+def sample_method
+  local_variable = 0
+  @sample.each do |sample|
+    local_variable += sample.num
+  end
+  # その他諸々の処理で、local_variableは使われる...
+end
+
+# # -------------------------------------------------
+
+def sample_method
+  # ローカル変数に再代入することで、以降の処理に影響を与えない
+  local_variable = calculate_sum
+  # その他諸々の処理で、local_variableは使われる...
+end
+
+def calculate_sum
+  # local_variable = 0
+  # @sample.each do |sample|
+  #   local_variable += sample.num
+  # end
+  # local_variable
+
+  # 上記はinjectでスマートに書ける
+  @sample.inject(0) { |local_variable, sample| local_variable + sample.num }
+end
+
+# -------------------------------------------------
+# -------------------------------------------------
+def sample_method
+  is_more_than_five ? 2 : 1
+end
+
+def is_more_than_five
+  @sample > 5
+end
+# -------------------------------------------------
+def sample_method
+  @sample > 5 ? 2 : 1
+end
+# -------------------------------------------------
+# -------------------------------------------------
+class Sample
+  # 略
+
+  def sample_method_equal_one
+    if @count.present? && @count == 1
+      @count += 1
+    end
+  end
+
+  def sample_method_equal_arg(arg)
+    if @count.present? && @count == arg
+      @count += 1
+    end
+  end
+
+  def sample_method_equal_one
+    sample_method_logic { |count| count == 1 }
+  end
+
+  def sample_method_equal_arg(arg)
+    sample_method_logic { |count| count == arg }
+  end
+
+  def sample_method_logic
+    if @count.present? && yield(count)
+      @count += 1
+    end
+  end
+end
+# -------------------------------------------------
