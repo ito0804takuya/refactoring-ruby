@@ -63,3 +63,52 @@ def found_person(people)
 end
 # -------------------------------------------------
 # -------------------------------------------------
+
+class Account
+  def add_charge(base_price, tax_rate, imported)
+    total = base_price + base_price * tax_rate
+    total += base_price * 0.1 if imported
+    @charges << total
+  end
+
+  def total_charge
+    @charges.inject { |total, charge| total + charge }
+  end
+end
+
+# クライアント（利用側）
+account.add_charge(5, 0.1, true)
+account.add_charge(12, 0.125, false)
+
+total = account.total_charge
+# -------------------------------------------------
+# 自然にまとめられる引数のグループを、オブジェクトにする
+class Charge
+  attr_accessor :base_price, :tax_rate, :imported
+
+  def initialize(base_price, tax_rate, imported)
+    @base_price = base_price
+    @tax_rate = tax_rate
+    @imported = imported
+  end
+end
+
+class Account
+  def add_charge(charge)
+    total = charge.base_price + charge.base_price * charge.tax_rate
+    total += charge.base_price * 0.1 if charge.imported
+    @charges << total
+  end
+
+  def total_charge
+    @charges.inject { |total, charge| total + charge }
+  end
+end
+
+# クライアント（利用側）
+account.add_charge(Charge.new(5, 0.1, true))
+account.add_charge(Charge.new(12, 0.125, false))
+
+total = account.total_charge
+# -------------------------------------------------
+# -------------------------------------------------
