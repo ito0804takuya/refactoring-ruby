@@ -112,3 +112,127 @@ account.add_charge(Charge.new(12, 0.125, false))
 total = account.total_charge
 # -------------------------------------------------
 # -------------------------------------------------
+
+class ProductController
+  def create
+    @product = if imported
+                  ImportedProduct.new(base_price)
+                else
+                  if base_price > 1000
+                    LuxuryProduct.new(base_price)
+                  else
+                    Product.new(base_price)
+                  end
+                end
+  end
+end
+
+class Product
+  def initialize(base_price)
+    @base_price = base_price
+  end
+
+  def total_price
+    @base_price
+  end
+end
+
+class LuxuryProduct < Product
+  def total_price
+    super + 0.1 * super
+  end
+end
+
+class ImportedProduct < Product
+  def total_price
+    super + 0.25 * super
+  end
+end
+# -------------------------------------------------
+class ProductController
+  def create
+    @product = Product.create(base_price, imported)
+  end
+end
+
+class Product
+  def initialize(base_price)
+    @base_price = base_price
+  end
+
+  def self.create(base_price, imported=false)
+    if imported
+      ImportedProduct.new(base_price)
+    else
+      if base_price > 1000
+        LuxuryProduct.new(base_price)
+      else
+        Product.new(base_price)
+      end
+    end
+  end
+
+  def total_price
+    @base_price
+  end
+end
+
+class LuxuryProduct < Product
+  def total_price
+    super + 0.1 * super
+  end
+end
+
+class ImportedProduct < Product
+  def total_price
+    super + 0.25 * super
+  end
+end
+
+# -------------------------------------------------
+# -------------------------------------------------
+
+class Account
+  # 引き出し
+  def withdraw(amount)
+    @balance = 10
+    return -1 if amount > @balance # エラーコード（-1とは？）
+    @balance -= amount
+    return 0
+  end
+end
+# -------------------------------------------------
+
+account = Account.new
+amount = 11
+if account.withdraw(amount) == -1
+  handle_overdrawn # エラーの場合に実行
+else
+  do_the_usual_thing # 通常実行される処理
+end
+# -------------------------------------------------
+require "rspec/expectations"
+
+include RSpec::Matchers
+
+class Account
+  # 引き出し
+  def withdraw(amount)
+    @balance = 10
+    expect(amount).to be <= @balance
+    @balance -= amount
+  end
+end
+
+account = Account.new
+amount = 11
+
+if !account.withdraw(amount)
+  handle_overdrawn
+else
+  account.withdraw(amount)
+end
+
+# -------------------------------------------------
+# -------------------------------------------------
+
